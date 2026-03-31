@@ -1,0 +1,362 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Scientific Calculator</title>
+  <style>
+/* All CSS and JavaScript embedded for OneDrive sharing compatibility */
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: #0f0f0f;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      color: white;
+    }
+
+    .calculator {
+      width: 380px;
+      background: #1c1c1e;
+      border-radius: 30px;
+      padding: 20px;
+      box-shadow: 0 20px 40px rgba(0,0,0,0.6);
+    }
+
+    .display {
+      background: #000;
+      border-radius: 20px;
+      padding: 20px 15px;
+      margin-bottom: 15px;
+      text-align: right;
+      min-height: 120px;
+    }
+
+    #expression { 
+      display: block; 
+      font-size: 18px; 
+      color: #888; 
+      min-height: 28px; 
+      word-wrap: break-word;
+      word-break: break-all;
+    }
+
+    #result {
+      background: transparent;
+      border: none;
+      color: white;
+      font-size: 48px;
+      width: 100%;
+      text-align: right;
+      outline: none;
+      word-wrap: break-word;
+      word-break: break-all;
+    }
+
+    .controls {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 12px;
+      flex-wrap: wrap;
+    }
+
+    .controls button {
+      flex: 1;
+      padding: 10px;
+      background: #ff9f0a;
+      border: none;
+      color: white;
+      border-radius: 12px;
+      font-size: 14px;
+      cursor: pointer;
+      font-weight: 600;
+      transition: all 0.1s;
+    }
+
+    .controls button:active { transform: scale(0.95); }
+    .controls button:hover { background: #ffb81f; }
+
+    .buttons {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 12px;
+    }
+
+    .buttons button {
+      height: 68px;
+      border: none;
+      border-radius: 50%;
+      font-size: 24px;
+      background: #333;
+      color: white;
+      cursor: pointer;
+      transition: all 0.1s;
+      font-weight: 600;
+    }
+
+    .buttons button:active { transform: scale(0.92); }
+    .buttons button:hover { background: #444; }
+
+    .op { background: #ff9f0a; color: white; }
+    .op:hover { background: #ffb81f; }
+
+    .equals { background: #30d158; color: black; }
+    .equals:hover { background: #40e068; }
+
+    .zero { grid-column: span 2; border-radius: 40px; }
+
+    .sci-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 12px;
+      margin-top: 12px;
+    }
+
+    .sci-grid button {
+      height: 50px;
+      border: none;
+      border-radius: 12px;
+      font-size: 14px;
+      background: #333;
+      color: white;
+      cursor: pointer;
+      font-weight: 600;
+      transition: all 0.1s;
+    }
+
+    .sci-grid button:active { transform: scale(0.95); }
+    .sci-grid button:hover { background: #444; }
+  </style>
+</head>
+<body>
+  <div class="calculator">
+    <div class="display">
+      <span id="expression"></span>
+      <input type="text" id="result" readonly value="0">
+    </div>
+
+    <div class="controls">
+      <button id="deg-rad" onclick="toggleDegRad()">DEG</button>
+      <button onclick="memory('MC')">MC</button>
+      <button onclick="memory('MR')">MR</button>
+      <button onclick="memory('M+')">M+</button>
+      <button onclick="memory('M-')">M-</button>
+    </div>
+
+    <div class="buttons">
+      <button onclick="clearAll()" class="op">AC</button>
+      <button onclick="clearEntry()" class="op">C</button>
+      <button onclick="appendValue('%')" class="op">%</button>
+      <button onclick="appendValue('÷')" class="op">÷</button>
+
+      <button onclick="appendValue('7')">7</button>
+      <button onclick="appendValue('8')">8</button>
+      <button onclick="appendValue('9')">9</button>
+      <button onclick="appendValue('×')" class="op">×</button>
+
+      <button onclick="appendValue('4')">4</button>
+      <button onclick="appendValue('5')">5</button>
+      <button onclick="appendValue('6')">6</button>
+      <button onclick="appendValue('−')" class="op">−</button>
+
+      <button onclick="appendValue('1')">1</button>
+      <button onclick="appendValue('2')">2</button>
+      <button onclick="appendValue('3')">3</button>
+      <button onclick="appendValue('+')" class="op">+</button>
+
+      <button onclick="appendValue('0')" class="zero">0</button>
+      <button onclick="appendValue('.')">.</button>
+      <button onclick="calculate()" class="equals">=</button>
+    </div>
+
+    <div class="sci-grid">
+      <button onclick="sciFunc('sin')">sin</button>
+      <button onclick="sciFunc('cos')">cos</button>
+      <button onclick="sciFunc('tan')">tan</button>
+      <button onclick="sciFunc('asin')">asin</button>
+
+      <button onclick="sciFunc('acos')">acos</button>
+      <button onclick="sciFunc('atan')">atan</button>
+      <button onclick="sciFunc('log')">log</button>
+      <button onclick="sciFunc('ln')">ln</button>
+
+      <button onclick="sciFunc('sqrt')">√</button>
+      <button onclick="sciFunc('square')">x²</button>
+      <button onclick="appendValue('^')">x^y</button>
+      <button onclick="sciFunc('fact')">n!</button>
+
+      <button onclick="appendValue('π')">π</button>
+      <button onclick="appendValue('e')">e</button>
+      <button onclick="appendValue('(')">(</button>
+      <button onclick="appendValue(')')">)</button>
+    </div>
+  </div>
+
+  <script>
+let display = document.getElementById('result');
+let expressionDisplay = document.getElementById('expression');
+let currentInput = '';
+let isRadian = false;
+let memoryValue = 0;
+
+function updateDisplay() {
+  display.value = currentInput || '0';
+}
+
+function appendValue(val) {
+  currentInput += val;
+  updateDisplay();
+}
+
+function clearAll() {
+  currentInput = '';
+  expressionDisplay.textContent = '';
+  updateDisplay();
+}
+
+function clearEntry() {
+  currentInput = currentInput.slice(0, -1);
+  updateDisplay();
+}
+
+function toggleDegRad() {
+  isRadian = !isRadian;
+  document.getElementById('deg-rad').textContent = isRadian ? 'RAD' : 'DEG';
+}
+
+function sciFunc(func) {
+  switch(func) {
+    case 'sin': appendValue('sin('); break;
+    case 'cos': appendValue('cos('); break;
+    case 'tan': appendValue('tan('); break;
+    case 'asin': appendValue('asin('); break;
+    case 'acos': appendValue('acos('); break;
+    case 'atan': appendValue('atan('); break;
+    case 'log': appendValue('log('); break;
+    case 'ln': appendValue('ln('); break;
+    case 'sqrt': appendValue('sqrt('); break;
+    case 'square': currentInput += '²'; updateDisplay(); break;
+    case 'fact': appendValue('!'); break;
+  }
+}
+
+function calculate() {
+  if (!currentInput) return;
+  try {
+    let result = evaluateExpression(currentInput);
+    expressionDisplay.textContent = currentInput + ' =';
+    currentInput = String(result);
+    updateDisplay();
+  } catch (error) {
+    display.value = 'Error';
+    currentInput = '';
+  }
+}
+
+function evaluateExpression(expr) {
+  // Replace display symbols with calculation symbols
+  let calc = expr
+    .replace(/÷/g, '/')
+    .replace(/×/g, '*')
+    .replace(/−/g, '-')
+    .replace(/π/g, Math.PI.toString())
+    .replace(/e(?![a-zA-Z])/g, Math.E.toString());
+
+  // Handle functions
+  calc = calc.replace(/sin\(/g, 'Math.sin(');
+  calc = calc.replace(/cos\(/g, 'Math.cos(');
+  calc = calc.replace(/tan\(/g, 'Math.tan(');
+  calc = calc.replace(/asin\(/g, 'Math.asin(');
+  calc = calc.replace(/acos\(/g, 'Math.acos(');
+  calc = calc.replace(/atan\(/g, 'Math.atan(');
+  calc = calc.replace(/log\(/g, 'Math.log10(');
+  calc = calc.replace(/ln\(/g, 'Math.log(');
+  calc = calc.replace(/sqrt\(/g, 'Math.sqrt(');
+  calc = calc.replace(/\^/g, '**');
+
+  // Handle degree to radian conversion for trig functions
+  if (!isRadian) {
+    calc = calc.replace(/Math\.sin\(/g, 'Math.sin(Math.PI/180*');
+    calc = calc.replace(/Math\.cos\(/g, 'Math.cos(Math.PI/180*');
+    calc = calc.replace(/Math\.tan\(/g, 'Math.tan(Math.PI/180*');
+  }
+
+  // Handle factorials
+  const factorialRegex = /(\d+)!/g;
+  calc = calc.replace(factorialRegex, (match, num) => {
+    let n = parseInt(num);
+    if (n < 0) return 'NaN';
+    let result = 1;
+    for (let i = 2; i <= n; i++) result *= i;
+    return result;
+  });
+
+  // Handle percentage
+  calc = calc.replace(/(\d+(?:\.\d+)?)\s*%/g, (match, num) => {
+    return (parseFloat(num) / 100).toString();
+  });
+
+  // Handle superscript 2
+  calc = calc.replace(/(\d+(?:\.\d+)?)²/g, '($1**2)');
+
+  // Close unclosed parentheses
+  let open = (calc.match(/\(/g) || []).length;
+  let close = (calc.match(/\)/g) || []).length;
+  if (open > close) {
+    calc += ')'.repeat(open - close);
+  }
+
+  // Evaluate using Function constructor (safer than eval)
+  try {
+    const result = Function('"use strict"; return (' + calc + ')')();
+    
+    // Handle inverse trig conversion to degrees
+    if (!isRadian && (expr.includes('asin') || expr.includes('acos') || expr.includes('atan'))) {
+      return result * 180 / Math.PI;
+    }
+    
+    return Number.isFinite(result) ? result : 0;
+  } catch (e) {
+    throw new Error('Calculation error');
+  }
+}
+
+function memory(action) {
+  try {
+    let num = parseFloat(currentInput) || 0;
+    switch(action) {
+      case 'MC': memoryValue = 0; break;
+      case 'MR': currentInput = memoryValue.toString(); updateDisplay(); break;
+      case 'M+': memoryValue += num; break;
+      case 'M-': memoryValue -= num; break;
+    }
+  } catch (e) {
+    console.error(e);
+  }
+}
+
+// Keyboard support
+document.addEventListener('keydown', e => {
+  if (/[0-9.]/.test(e.key)) appendValue(e.key);
+  if (['+', '-', '*', '/'].includes(e.key)) {
+    e.preventDefault();
+    if (e.key === '+') appendValue('+');
+    else if (e.key === '-') appendValue('−');
+    else if (e.key === '*') appendValue('×');
+    else if (e.key === '/') appendValue('÷');
+  }
+  if (e.key === 'Enter' || e.key === '=') {
+    e.preventDefault();
+    calculate();
+  }
+  if (e.key === 'Escape') clearAll();
+  if (e.key === 'Backspace') clearEntry();
+});
+
+updateDisplay();
+  </script>
+</body>
+</html>
